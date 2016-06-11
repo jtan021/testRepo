@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "ED394DFDF09EA959A58AAD25720EAA23CE7827AA",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "9ACDBD303BA764671626004FDABD42F430B07A12" : 0,
+    "ED394DFDF09EA959A58AAD25720EAA23CE7827AA" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "1325AA75-DB31-4D34-801F-87A764BBF0FE",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "9ACDBD303BA764671626004FDABD42F430B07A12" : "..",
+    "ED394DFDF09EA959A58AAD25720EAA23CE7827AA" : "Hyve%20V0.06\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "Hyve V0.06",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "Hyve V0.06.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/jtan021\/Projects.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "9ACDBD303BA764671626004FDABD42F430B07A12"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/jtan021\/testRepo.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "ED394DFDF09EA959A58AAD25720EAA23CE7827AA"
+    }
+  ]
+}
