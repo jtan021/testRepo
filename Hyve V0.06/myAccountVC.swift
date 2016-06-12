@@ -30,6 +30,7 @@ class myAccountVC: UIViewController, UITableViewDelegate, UITableViewDataSource 
     @IBOutlet weak var profileUsername: UILabel!
     @IBOutlet weak var profileWallet: UILabel!
     @IBOutlet weak var accountMenuTableView: UITableView!
+    @IBOutlet weak var profileView: UIView!
     
     /*
      * Action functions

@@ -20,11 +20,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let navigationBarAppearance = UINavigationBar.appearance()
         navigationBarAppearance.tintColor = colorWithHexString("181818")
         navigationBarAppearance.barTintColor = colorWithHexString("181818")
+        navigationBarAppearance.translucent = false
         
         // For Tab Bar button color
         UITabBar.appearance().tintColor = colorWithHexString("E5B924")
         // For Tab Bar background color
         UITabBar.appearance().barTintColor = colorWithHexString("181818")
+        UITabBar.appearance().backgroundColor = colorWithHexString("181818")
         
         // Set statusBarStyle
         UIApplication.sharedApplication().statusBarStyle = .LightContent

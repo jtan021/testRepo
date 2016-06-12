@@ -137,6 +137,8 @@
 			isa = PBXGroup;
 			children = (
 				16BC06721D0C870700346534 /* Hyve V0.06 */,
+				16BC06791D0C870700346534 /* Main.storyboard */,
+				16BC067E1D0C870700346534 /* LaunchScreen.storyboard */,
 				16BC06891D0C870700346534 /* Hyve V0.06Tests */,
 				16BC06941D0C870700346534 /* Hyve V0.06UITests */,
 				16BC06711D0C870700346534 /* Products */,
@@ -157,11 +159,11 @@
 		16BC06721D0C870700346534 /* Hyve V0.06 */ = {
 			isa = PBXGroup;
 			children = (
+				16FD14061D0C8A1600924235 /* home */,
 				16FD140A1D0C8A3B00924235 /* completed */,
 				16FD14091D0C8A3700924235 /* pending */,
 				16FD14081D0C8A2E00924235 /* myAccount */,
 				16FD14071D0C8A1F00924235 /* loginRegistration */,
-				16FD14061D0C8A1600924235 /* home */,
 				16FD14051D0C89EF00924235 /* Supporting files */,
 			);
 			path = "Hyve V0.06";
@@ -212,8 +214,6 @@
 			children = (
 				16BC06731D0C870700346534 /* AppDelegate.swift */,
 				16BC06C61D0C896200346534 /* Assets.xcassets */,
-				16BC067E1D0C870700346534 /* LaunchScreen.storyboard */,
-				16BC06791D0C870700346534 /* Main.storyboard */,
 				16BC06C31D0C88B300346534 /* THLabel.h */,
 				16BC06C41D0C88B300346534 /* THLabel.m */,
 				16BC06811D0C870700346534 /* Info.plist */,
@@ -446,6 +446,7 @@
 				16BC067A1D0C870700346534 /* Base */,
 			);
 			name = Main.storyboard;
+			path = "Hyve V0.06";
 			sourceTree = "<group>";
 		};
 		16BC067E1D0C870700346534 /* LaunchScreen.storyboard */ = {
@@ -454,6 +455,7 @@
 				16BC067F1D0C870700346534 /* Base */,
 			);
 			name = LaunchScreen.storyboard;
+			path = "Hyve V0.06";
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

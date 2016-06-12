@@ -6,7 +6,7 @@
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
-        <!--Home-->
+        <!--HomeVC-->
         <scene sceneID="hNz-n2-bh7">
             <objects>
                 <viewController id="9pv-A4-QxB" customClass="homeVC" customModule="Hyve_V0_06" customModuleProvider="target" sceneMemberID="viewController">
@@ -31,13 +31,6 @@
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XRb-EK-nQ9">
-                                <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <variation key="heightClass=regular-widthClass=compact" fixedFrame="YES">
-                                    <rect key="frame" x="0.0" y="0.0" width="400" height="128"/>
-                                </variation>
-                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
@@ -46,22 +39,31 @@
                             <constraint firstItem="A5M-7J-77L" firstAttribute="centerX" secondItem="KQZ-1w-vlD" secondAttribute="centerX" id="e1l-AV-tCB"/>
                             <constraint firstAttribute="centerY" secondItem="KQZ-1w-vlD" secondAttribute="centerY" id="exm-UA-ej4"/>
                         </constraints>
-                        <variation key="default">
-                            <mask key="subviews">
-                                <exclude reference="XRb-EK-nQ9"/>
-                            </mask>
-                        </variation>
-                        <variation key="heightClass=regular-widthClass=compact">
-                            <mask key="subviews">
-                                <include reference="XRb-EK-nQ9"/>
-                            </mask>
-                        </variation>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Home" image="home1" id="acW-dT-cKf"/>
+                    <navigationItem key="navigationItem" id="Xgx-NS-Tr8"/>
+                    <connections>
+                        <outlet property="searchDisplayController" destination="a3Q-Rr-OkP" id="iPY-Iq-Lhy"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="W5J-7L-Pyd" sceneMemberID="firstResponder"/>
+                <searchDisplayController id="Slv-6L-E2t">
+                    <connections>
+                        <outlet property="delegate" destination="9pv-A4-QxB" id="Lh7-J6-8sZ"/>
+                        <outlet property="searchContentsController" destination="9pv-A4-QxB" id="4O8-jF-NDr"/>
+                        <outlet property="searchResultsDataSource" destination="9pv-A4-QxB" id="UI7-YT-fTU"/>
+                        <outlet property="searchResultsDelegate" destination="9pv-A4-QxB" id="alf-MQ-62Q"/>
+                    </connections>
+                </searchDisplayController>
+                <searchDisplayController id="a3Q-Rr-OkP">
+                    <connections>
+                        <outlet property="delegate" destination="9pv-A4-QxB" id="vMV-rP-70Y"/>
+                        <outlet property="searchContentsController" destination="9pv-A4-QxB" id="uHp-Rg-2VA"/>
+                        <outlet property="searchResultsDataSource" destination="9pv-A4-QxB" id="AW9-C3-yBw"/>
+                        <outlet property="searchResultsDelegate" destination="9pv-A4-QxB" id="kjj-AD-O1T"/>
+                    </connections>
+                </searchDisplayController>
             </objects>
-            <point key="canvasLocation" x="750" y="-320.25"/>
+            <point key="canvasLocation" x="1668" y="-320.25"/>
         </scene>
         <!--My Account-->
         <scene sceneID="wg7-f3-ORb">
@@ -168,9 +170,12 @@
                                                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="n9t-OY-1sx">
                                                     <rect key="frame" x="23" y="10" width="40" height="40"/>
                                                     <constraints>
-                                                        <constraint firstAttribute="height" constant="40" id="30l-Qo-Ar3"/>
-                                                        <constraint firstAttribute="width" constant="40" id="Ueo-Qj-qo2"/>
+                                                        <constraint firstAttribute="height" constant="35" id="30l-Qo-Ar3"/>
+                                                        <constraint firstAttribute="width" constant="35" id="Ueo-Qj-qo2"/>
                                                     </constraints>
+                                                    <variation key="heightClass=regular-widthClass=compact" misplaced="YES">
+                                                        <rect key="frame" x="23" y="13" width="40" height="35"/>
+                                                    </variation>
                                                 </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9x1-jP-4Uz">
                                                     <rect key="frame" x="73" y="19" width="299" height="21"/>
@@ -220,6 +225,7 @@
                         <outlet property="profileFullName" destination="u3S-Xm-bek" id="BL8-N9-eob"/>
                         <outlet property="profilePic" destination="0an-HS-Pq5" id="jYb-q2-Vhv"/>
                         <outlet property="profileUsername" destination="AMD-jP-56K" id="UuE-Fe-l5n"/>
+                        <outlet property="profileView" destination="ifb-0Y-KYH" id="tej-JB-fYm"/>
                         <outlet property="profileWallet" destination="Q6w-SF-VNC" id="U0s-0D-hPC"/>
                         <segue destination="v3X-tz-xpv" kind="presentation" identifier="successfulLogOutSegue" id="4g4-d5-VKd"/>
                     </connections>
@@ -566,13 +572,32 @@
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     </tabBar>
                     <connections>
-                        <segue destination="9pv-A4-QxB" kind="relationship" relationship="viewControllers" id="u7Y-xg-7CH"/>
+                        <segue destination="K6h-Uf-rqB" kind="relationship" relationship="viewControllers" id="u7Y-xg-7CH"/>
                         <segue destination="8rJ-Kc-sve" kind="relationship" relationship="viewControllers" id="lzU-1b-eKA"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="HuB-VB-40B" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="0.0" y="0.0"/>
+        </scene>
+        <!--Home-->
+        <scene sceneID="XYd-DJ-Mbe">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="K6h-Uf-rqB" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Home" image="home1" id="acW-dT-cKf"/>
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="8Yc-Ds-KVD">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="9pv-A4-QxB" kind="relationship" relationship="rootViewController" id="7z8-tg-RIq"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Xgb-Pv-w1h" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="750" y="-320.25"/>
         </scene>
     </scenes>
     <resources>
