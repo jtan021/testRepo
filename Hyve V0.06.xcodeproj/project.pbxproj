@@ -35,6 +35,8 @@
 		16FD14041D0C89C500924235 /* completedVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16FD14031D0C89C500924235 /* completedVC.swift */; };
 		16FD140C1D0C8A5B00924235 /* loginRegisterVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16FD140B1D0C8A5B00924235 /* loginRegisterVC.swift */; };
 		16FD140E1D0CB1B300924235 /* accountMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16FD140D1D0CB1B300924235 /* accountMenuCell.swift */; };
+		16FD14101D0CE08E00924235 /* locationSearchTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16FD140F1D0CE08E00924235 /* locationSearchTable.swift */; };
+		16FD14121D0E256C00924235 /* jobMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16FD14111D0E256C00924235 /* jobMenuCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -91,6 +93,8 @@
 		16FD14031D0C89C500924235 /* completedVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = completedVC.swift; sourceTree = "<group>"; };
 		16FD140B1D0C8A5B00924235 /* loginRegisterVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = loginRegisterVC.swift; sourceTree = "<group>"; };
 		16FD140D1D0CB1B300924235 /* accountMenuCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = accountMenuCell.swift; sourceTree = "<group>"; };
+		16FD140F1D0CE08E00924235 /* locationSearchTable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = locationSearchTable.swift; sourceTree = "<group>"; };
+		16FD14111D0E256C00924235 /* jobMenuCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = jobMenuCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -226,6 +230,8 @@
 			isa = PBXGroup;
 			children = (
 				16BC06751D0C870700346534 /* homeVC.swift */,
+				16FD140F1D0CE08E00924235 /* locationSearchTable.swift */,
+				16FD14111D0E256C00924235 /* jobMenuCell.swift */,
 			);
 			name = home;
 			sourceTree = "<group>";
@@ -397,8 +403,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				16FD14121D0E256C00924235 /* jobMenuCell.swift in Sources */,
 				16BC06C51D0C88B300346534 /* THLabel.m in Sources */,
 				16FD140C1D0C8A5B00924235 /* loginRegisterVC.swift in Sources */,
+				16FD14101D0CE08E00924235 /* locationSearchTable.swift in Sources */,
 				16BC06781D0C870700346534 /* myAccountVC.swift in Sources */,
 				16FD14041D0C89C500924235 /* completedVC.swift in Sources */,
 				16FD140E1D0CB1B300924235 /* accountMenuCell.swift in Sources */,
