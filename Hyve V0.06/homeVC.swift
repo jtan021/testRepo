@@ -35,6 +35,13 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
     var didStartPanMap:Bool = false
     // Job Menu
     var jobMenuArray = [jobMenuItem]()
+    // Request
+    var activeTextField: UITextField!
+    var viewWasMoved: Bool = false
+    var screenRect:CGRect = UIScreen.mainScreen().bounds
+    var screenWidth:CGFloat?
+    var originY:CGFloat?
+    var originX:CGFloat?
    
     /*
      * Outlets
@@ -278,6 +285,44 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
         self.addressTV.text = self.searchBar!.text
     }
     
+    //Name: dismissKeyboard
+    //Inputs: None
+    //Outputs: None
+    //Function: Custom function to end text editing for views by dismissing keyboard
+    func dismissKeyboard(sender: AnyObject) {
+        view.endEditing(true)
+    }
+    
+    func animateTextField(textField: UITextField, up: Bool) {
+        let movementDistance:CGFloat = -130
+        let movementDuration: Double = 0.3
+        
+        var movement:CGFloat = 0
+        if up {
+            movement = movementDistance
+        }
+        else {
+            movement = -movementDistance
+        }
+        UIView.beginAnimations("animateTextField", context: nil)
+        UIView.setAnimationBeginsFromCurrentState(true)
+        UIView.setAnimationDuration(movementDuration)
+        self.view.frame = CGRectOffset(self.view.frame, 0, movement)
+        UIView.commitAnimations()
+    }
+    
+    func textFieldDidBeginEditing(textField: UITextField) {
+        if(textField == offerTF || textField == keyTF) {
+            self.animateTextField(textField, up:true)
+        }
+    }
+    
+    func textFieldDidEndEditing(textField: UITextField) {
+        if(textField == offerTF || textField == keyTF) {
+            self.animateTextField(textField, up:false)
+        }
+    }
+    
     /*
      * Overrided functions
      */
@@ -382,14 +427,21 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
         self.jobMenuArray.append(jobMenuItem(menuTitle: "Laundry", menuImage: UIImage(named:"laundry")))
         self.jobMenuArray.append(jobMenuItem(menuTitle: "Special Request", menuImage: UIImage(named:"specialRequest")))
         print(self.jobMenuArray.count)
+        
+        // Add gesture to close keyboard when tapped outside
+        let tapper = UITapGestureRecognizer(target: view, action:#selector(UIView.endEditing))
+        tapper.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapper)
+        
+        // Move keyboard up, save view origin
+        screenWidth = screenRect.size.width
+        
     }
-    
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
 }
 
 extension homeVC: HandleMapSearch {
