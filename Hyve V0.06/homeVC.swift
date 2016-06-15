@@ -20,7 +20,7 @@ struct jobMenuItem {
     var menuImage: UIImage?
 }
 
-class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, UISearchBarDelegate, UISearchControllerDelegate, UIGestureRecognizerDelegate, UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate, UITextViewDelegate {
+class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, UISearchBarDelegate, UISearchControllerDelegate, UIGestureRecognizerDelegate, UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate, UITextViewDelegate, UIPickerViewDataSource, UIPickerViewDelegate {
 
     /*
      * Constants
@@ -36,13 +36,19 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
     // Job Menu
     var jobMenuArray = [jobMenuItem]()
     // Request
-    var activeTextField: UITextField!
-    var viewWasMoved: Bool = false
-    var screenRect:CGRect = UIScreen.mainScreen().bounds
+    var categoryPicker = UIPickerView()
+    var datePicker = UIPickerView()
     var screenWidth:CGFloat?
-    var originY:CGFloat?
-    var originX:CGFloat?
-   
+    var screenRect:CGRect = UIScreen.mainScreen().bounds
+    var day:Int = 0
+    var hour: Int = 0
+    var minute: Int = 0
+    var hourArray = [AnyObject]()
+    var minuteArray = [AnyObject]()
+    var dayArray = [AnyObject]()
+    var pickerStringVal: String = String()
+    var PLACEHOLDER_TEXT = "This is optional but if you want to, tell us more about your request! Any specifics?"
+    
     /*
      * Outlets
      */
@@ -294,7 +300,7 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
     }
     
     func animateTextField(textField: UITextField, up: Bool) {
-        let movementDistance:CGFloat = -130
+        let movementDistance:CGFloat = -150
         let movementDuration: Double = 0.3
         
         var movement:CGFloat = 0
@@ -322,6 +328,188 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
             self.animateTextField(textField, up:false)
         }
     }
+    
+    // Name: numberOfComponentsInPickerView
+    // Inputs: None
+    // Outputs: None
+    // Function: Sets the number of components in the pickerview
+    func numberOfComponentsInPickerView(pickerView: UIPickerView) -> Int {
+        if(pickerView == datePicker) {
+            return 6
+        } else {
+            return 1
+        }
+    }
+    
+    // Name: pickerView
+    // Inputs: None
+    // Outputs: None
+    // Function: Sets variables: day, hour, minute, and updates the jobLifeTextField with user selection
+    func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        if(pickerView == self.datePicker) {
+            switch component {
+            case 0:
+                self.day = row
+            case 2:
+                self.hour = row
+            case 4:
+                self.minute = row
+            default:
+                print("No component with number \(component)")
+            }
+            if (day > 1) {
+                lifetimeTF.text = "\(day) Days"
+            } else {
+                lifetimeTF.text = "\(day) Day"
+            }
+            
+            if (hour > 1) {
+                lifetimeTF.text = "\(lifetimeTF.text!), \(hour) Hours"
+            } else {
+                lifetimeTF.text = "\(lifetimeTF.text!), \(hour) Hour"
+            }
+            
+            if (minute > 1) {
+                lifetimeTF.text = "\(lifetimeTF.text!), \(minute) Minutes."
+            } else {
+                lifetimeTF.text = "\(lifetimeTF.text!), \(minute) Minute."
+            }
+        } else if(pickerView == self.categoryPicker) {
+            categoryTF.text = self.jobMenuArray[row].menuTitle
+        }
+    }
+    
+    // Name: pickerView
+    // Inputs: None
+    // Outputs: None
+    // Function: Sets the number of choices in each component of the pickerView
+    func pickerView(pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        if(pickerView == self.datePicker) {
+            if component == 0 {
+                return dayArray.count
+            } else if component == 2 {
+                return hourArray.count
+            } else if component == 4 {
+                return minuteArray.count
+            } else {
+                return 1
+            }
+        } else if (pickerView == self.categoryPicker) {
+            return jobMenuArray.count
+        } else {
+            return 1
+        }
+    }
+    
+    func pickerView(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        var title: String? = nil
+        if(pickerView == self.categoryPicker) {
+            return jobMenuArray[row].menuTitle
+        } else {
+            return "\(row)"
+        }
+    }
+    
+    // Name: pickerView
+    // Inputs: None
+    // Outputs: None
+    // Function: Populates the keyboard pickerViews with required fields.
+    func pickerView(pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusingView view: UIView!) -> UIView {
+        if pickerView == datePicker {
+            let columnView = UILabel(frame: CGRectMake(30, 0, screenWidth!/6 - 30, 30))
+            if(component == 1) {
+                columnView.text = "Day"
+            } else if(component == 3) {
+                columnView.text = "Hour"
+            } else if(component == 5) {
+                columnView.text = "Min"
+            } else {
+                columnView.text = "\(row)"
+                columnView.textAlignment = NSTextAlignment.Center
+            }
+            return columnView
+        } else if pickerView == categoryPicker {
+            let columnView = UILabel(frame: CGRectMake(30, 0, screenWidth! - 30, 30))
+            columnView.text = self.jobMenuArray[row].menuTitle
+            columnView.textAlignment = NSTextAlignment.Center
+            return columnView
+        }
+        return view
+    }
+    
+    // Name: textFieldDidChange
+    // Inputs: None
+    // Outputs: None
+    // Function: Adds a '$' to the front of the jobOfferTextField if user inputs text
+    func textFieldDidChange(textField: UITextField) {
+        if !(self.offerTF.text!.hasPrefix("$")) {
+            self.offerTF.text = "$\(self.offerTF.text!)"
+        } else {
+            if (self.offerTF.text!.hasSuffix("$")) {
+                self.offerTF.text = ""
+            }
+        }
+    }
+    
+    func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
+        let newString = (textField.text! as NSString).stringByReplacingCharactersInRange(range, withString: string) as? NSString
+        var arrayOfString: [AnyObject] = newString!.componentsSeparatedByString(".")
+        // Check if there are more than 1 decimal points
+        if arrayOfString.count > 2 {
+            return false
+        }
+        // Check for more than 2 chars after the decimal point
+        if (arrayOfString.count > 1)
+        {
+            let decimalAmount:NSString = arrayOfString[1] as! String
+            if(decimalAmount.length > 2) {
+                return false
+            }
+        }
+        // Check for an absurdly large amount
+        if (arrayOfString.count > 0)
+        {
+            let dollarAmount:NSString = arrayOfString[0] as! String
+            if (dollarAmount.length > 6) {
+                return false
+            }
+        }
+        return true
+    }
+    
+//      Un-comment to enable placeholder text for textView
+//      Name: textViewDidBeginEditing
+//      Inputs: None
+//      Outputs: None
+//      Function: If user edits textView, check textColor to make sure it is returned to blackColor
+     func textViewDidBeginEditing(textView: UITextView) {
+        if textView.textColor == UIColor.lightGrayColor() {
+            textView.text = nil
+            textView.textColor = UIColor.blackColor()
+        }
+     }
+     
+//      Name: textViewDidChange
+//      Inputs: None
+//      Outputs: None
+//      Function: If textView is changed, check if empty. If it is empty, update it with placeholder text
+     func textViewDidChange(textView: UITextView) {
+        if (textView.text.isEmpty) {
+            textView.textColor = UIColor.lightGrayColor()
+            textView.text = PLACEHOLDER_TEXT
+        }
+     }
+     
+//      Name: textViewDidChange
+//      Inputs: None
+//      Outputs: None
+//      Function: If user finished editing the textView, check if empty. If it is empty, update it with placeholder text
+     func textViewDidEndEditing(textView: UITextView) {
+        if (textView.text.isEmpty) {
+            textView.textColor = UIColor.lightGrayColor()
+            textView.text = PLACEHOLDER_TEXT
+        }
+     }
     
     /*
      * Overrided functions
@@ -433,8 +621,66 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
         tapper.cancelsTouchesInView = false
         view.addGestureRecognizer(tapper)
         
-        // Move keyboard up, save view origin
-        screenWidth = screenRect.size.width
+        // Create UIPickerView for lifetimeTF Input
+        datePicker = UIPickerView(frame: CGRectMake(0, 200, view.frame.width, 280))
+        datePicker.backgroundColor = .whiteColor()
+        datePicker.showsSelectionIndicator = true
+        self.datePicker.dataSource = self
+        self.datePicker.delegate = self
+        self.screenWidth = screenRect.size.width
+        
+        // Create UIPickerView for categoryTF Input
+        //categoryPicker = UIPickerView(frame: CGRectMake(0, 200, view.frame.width, 280))
+        categoryPicker.backgroundColor = .whiteColor()
+        categoryPicker.showsSelectionIndicator = true
+        categoryPicker.dataSource = self
+        categoryPicker.delegate = self
+        
+        // Populate day/hour/min array
+        for i in 0...59 {
+            pickerStringVal = "\(i)"
+            //Creates day array with 0-13 days
+            if (i < 14) {
+                dayArray.append(pickerStringVal)
+                //Creates hour array with 0-23 hours
+            }
+            if (i < 24) {
+                hourArray.append(pickerStringVal)
+                //Creates minute array with 0-59 minutes
+            }
+            minuteArray.append(pickerStringVal)
+        }
+        
+        // Create a "Done" button to add the the UIPickerView
+        let toolBar = UIToolbar()
+        toolBar.barStyle = UIBarStyle.Default
+        toolBar.setBackgroundImage(UIImage(named: "Hyve_BG2"), forToolbarPosition: .Any, barMetrics: .Default)
+        toolBar.translucent = false
+        toolBar.tintColor = colorWithHexString("E5B924")
+        toolBar.sizeToFit()
+        let doneButton = UIBarButtonItem(title: "Done", style: UIBarButtonItemStyle.Bordered, target: self, action: "dismissKeyboard:")
+        let spaceButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.FlexibleSpace, target: nil, action: nil)
+        toolBar.setItems([spaceButton, doneButton], animated: false)
+        toolBar.userInteractionEnabled = true
+        
+        // Set lifetimeTF keyboard input to be the pickerView and add done button
+        self.lifetimeTF.inputView = datePicker
+        self.categoryTF.inputView = categoryPicker
+
+        // Set offerTF keyboard to numberpad and edit string if offerTF is edited
+        self.offerTF.keyboardType = UIKeyboardType.DecimalPad
+        self.offerTF.addTarget(self, action: "textFieldDidChange:", forControlEvents: UIControlEvents.EditingChanged)
+        // Add done button to all text keyboards
+        self.titleTF.inputAccessoryView = toolBar
+        self.categoryTF.inputAccessoryView = toolBar
+        self.offerTF.inputAccessoryView = toolBar
+        self.keyTF.inputAccessoryView = toolBar
+        self.lifetimeTF.inputAccessoryView = toolBar
+        self.descriptionTV.inputAccessoryView = toolBar
+        
+        // Add placeholder to textview
+        self.descriptionTV.text = PLACEHOLDER_TEXT
+        self.descriptionTV.textColor = UIColor.lightGrayColor()
         
     }
     
@@ -462,6 +708,14 @@ extension UIButton {
         UIGraphicsEndImageContext()
         
         self.setBackgroundImage(colorImage, forState: forState)
+    }
+}
+
+extension Double {
+    /// Rounds the double to decimal places value
+    func roundToPlaces(places:Int) -> Double {
+        let divisor = pow(10.0, Double(places))
+        return round(self * divisor) / divisor
     }
 }
 
