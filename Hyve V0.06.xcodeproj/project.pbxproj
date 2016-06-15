@@ -37,6 +37,7 @@
 		16FD140E1D0CB1B300924235 /* accountMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16FD140D1D0CB1B300924235 /* accountMenuCell.swift */; };
 		16FD14101D0CE08E00924235 /* locationSearchTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16FD140F1D0CE08E00924235 /* locationSearchTable.swift */; };
 		16FD14121D0E256C00924235 /* jobMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16FD14111D0E256C00924235 /* jobMenuCell.swift */; };
+		16FD144E1D11470400924235 /* searchTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16FD144D1D11470400924235 /* searchTextField.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -95,6 +96,7 @@
 		16FD140D1D0CB1B300924235 /* accountMenuCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = accountMenuCell.swift; sourceTree = "<group>"; };
 		16FD140F1D0CE08E00924235 /* locationSearchTable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = locationSearchTable.swift; sourceTree = "<group>"; };
 		16FD14111D0E256C00924235 /* jobMenuCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = jobMenuCell.swift; sourceTree = "<group>"; };
+		16FD144D1D11470400924235 /* searchTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = searchTextField.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -232,6 +234,7 @@
 				16BC06751D0C870700346534 /* homeVC.swift */,
 				16FD140F1D0CE08E00924235 /* locationSearchTable.swift */,
 				16FD14111D0E256C00924235 /* jobMenuCell.swift */,
+				16FD144D1D11470400924235 /* searchTextField.swift */,
 			);
 			name = home;
 			sourceTree = "<group>";
@@ -404,6 +407,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				16FD14121D0E256C00924235 /* jobMenuCell.swift in Sources */,
+				16FD144E1D11470400924235 /* searchTextField.swift in Sources */,
 				16BC06C51D0C88B300346534 /* THLabel.m in Sources */,
 				16FD140C1D0C8A5B00924235 /* loginRegisterVC.swift in Sources */,
 				16FD14101D0CE08E00924235 /* locationSearchTable.swift in Sources */,

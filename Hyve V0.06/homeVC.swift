@@ -30,7 +30,7 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
     let locationManager = CLLocationManager()
     var previousAddress: String?
     var resultSearchController:UISearchController? = nil
-    var searchBar: UISearchBar?
+    //var searchBar: UISearchBar?
     var selectedPin:MKPlacemark? = nil
     var didStartPanMap:Bool = false
     // Job Menu
@@ -48,6 +48,18 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
     var dayArray = [AnyObject]()
     var pickerStringVal: String = String()
     var PLACEHOLDER_TEXT = "This is optional but if you want to, tell us more about your request! Any specifics?"
+    // THLabel Constants
+    var kShadowColor1 = UIColor.blackColor
+    var kShadowColor2 = UIColor(white: 0.0, alpha: 0.75)
+    var kShadowOffset = CGSizeMake(0.0, UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.Pad ? 4.0 : 2.0)
+    var kShadowBlur:CGFloat = (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.Pad ? 10.0 : 5.0)
+    var kInnerShadowOffset = CGSizeMake(0.0, UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.Pad ? 2.0 : 1.0)
+    var kInnerShadowBlur:CGFloat = (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.Pad ? 4.0 : 2.0)
+    var kStrokeColor = UIColor.blackColor()
+    var kStrokeSize:CGFloat = (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.Pad ? 4.0 : 2.0)
+    var kGradientStartColor = UIColor(colorLiteralRed: 229/255, green: 185/255, blue: 36/255, alpha: 1.0)
+    var kGradientEndColor = UIColor(colorLiteralRed: 255/255, green: 138/255, blue: 0/255, alpha: 1.0)
+    
     
     /*
      * Outlets
@@ -74,6 +86,17 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
     @IBOutlet weak var descriptionTF: UITextField!
     @IBOutlet weak var offerTF: UITextField!
     @IBOutlet weak var keyTF: UITextField!
+    // Overall Search
+    @IBOutlet weak var searchView: UIView!
+    @IBOutlet weak var searchViewMainSearchTF: UITextField!
+    @IBOutlet weak var searchViewLocationSearchTF: UITextField!
+    @IBOutlet weak var searchViewOriginY: NSLayoutConstraint!
+    @IBOutlet weak var searchTable: UITableView!
+    // Starting search/navigation bar
+    @IBOutlet weak var HYVELabel: THLabel!
+    @IBOutlet weak var HYVEView: UIView!
+    @IBOutlet weak var HYVESearchTF: UITextField!
+    
     
     /*
      * Action functions
@@ -114,11 +137,25 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
             self.switchMapListButton.setImage(UIImage(named: "list2"), forState: UIControlState.Normal)
         }
     }
+    
+    @IBAction func returnFromSearchDidTouch(sender: AnyObject) {
+        self.searchViewOriginY.constant -= 154
+        self.searchTable.hidden = true
+        self.HYVEView.hidden = false
+        //self.navigationController!.navigationBar.hidden = false
+    }
+    
+    @IBAction func searchButtonDidTouch(sender: AnyObject) {
+    }
 
     /*
      * Custom functions
      */
     
+    // Name: closeJobMenu()
+    // Inputs: ...
+    // Outputs: ...
+    // Function: Hide jobMenuView and replace navigationItem.titleView with the searchBar
     func closeJobMenu() -> Void {
         // Remove right bar "return" button
         self.navigationItem.rightBarButtonItem = nil
@@ -128,6 +165,10 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
         self.jobMenuView.hidden = true
     }
     
+    // Name: closeRequestView
+    // Inputs: ...
+    // Outputs: ...
+    // Function: Hide requestView and replace navigationItem.titleView with the searchBar
     func closeRequestView() -> Void {
         // Remove right bar "return" button
         self.navigationItem.rightBarButtonItem = nil
@@ -137,6 +178,10 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
         self.requestView.hidden = true
     }
     
+    // Name: colorWithHexString
+    // Inputs: String
+    // Outputs: UIColor
+    // Function: Converts a hexString to a UIColor
     func colorWithHexString (hex:String) -> UIColor {
         var cString:String = hex.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()).uppercaseString
         
@@ -207,7 +252,7 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
             print(address)
             self.previousAddress = address
             //self.activeUser.currentLocation = address
-            self.searchBar!.text = address
+            //self.searchBar!.text = address
         })
     }
     
@@ -217,7 +262,7 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
     // Function: If searchController was dismissed, reset address to previously set address
     func didDismissSearchController(searchController: UISearchController) {
         print("Search bar was dismissed.")
-        self.searchBar!.text = previousAddress
+        //self.searchBar!.text = previousAddress
     }
     
     // Name: gestureRecognizer
@@ -248,10 +293,18 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
         }
     }
     
+    // Name: tableView -- numberOfRowsInSection
+    // Inputs: ...
+    // Outputs: ...
+    // Function: Sets the number of rows in each section of the tableView
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.jobMenuArray.count
     }
     
+    // Name: tableView -- cellForRowAtIndexPath
+    // Inputs: ...
+    // Outputs: ...
+    // Function: Sets up each cell of the tableView
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let menuCell = self.jobMenuTableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath) as! jobMenuCell
         menuCell.menuTitle.text = self.jobMenuArray[indexPath.row].menuTitle
@@ -265,6 +318,10 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
         return menuCell
     }
     
+    // Name: tableView -- didSelectRowAtIndexPath
+    // Inputs: ...
+    // Outputs: ...
+    // Function: Sets up what happens when a cell is selected
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         print("selected")
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
@@ -288,7 +345,7 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
         self.categoryTF.text = self.jobMenuArray[indexPath.row].menuTitle
         self.offerTF.text = "$0.00"
         self.lifetimeTF.text = "0 Days, 0 Hours, 0 Minutes"
-        self.addressTV.text = self.searchBar!.text
+        //self.addressTV.text = self.searchBar!.text
     }
     
     //Name: dismissKeyboard
@@ -317,12 +374,20 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
         UIView.commitAnimations()
     }
     
+    // Name: textFieldDidBeginEditing
+    // Inputs: ...
+    // Outputs: ...
+    // Function: Push view up if textField == offerTF || keyTF is edited
     func textFieldDidBeginEditing(textField: UITextField) {
         if(textField == offerTF || textField == keyTF) {
             self.animateTextField(textField, up:true)
         }
     }
     
+    // Name: textFieldDidEndEditing
+    // Inputs: ...
+    // Outputs: ...
+    // Function: Push view down if textfield == offerTF || keyTF is finished editing
     func textFieldDidEndEditing(textField: UITextField) {
         if(textField == offerTF || textField == keyTF) {
             self.animateTextField(textField, up:false)
@@ -330,8 +395,8 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
     }
     
     // Name: numberOfComponentsInPickerView
-    // Inputs: None
-    // Outputs: None
+    // Inputs: ...
+    // Outputs: ...
     // Function: Sets the number of components in the pickerview
     func numberOfComponentsInPickerView(pickerView: UIPickerView) -> Int {
         if(pickerView == datePicker) {
@@ -379,7 +444,7 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
         }
     }
     
-    // Name: pickerView
+    // Name: pickerView -- numberOfRowsInComponent
     // Inputs: None
     // Outputs: None
     // Function: Sets the number of choices in each component of the pickerView
@@ -401,6 +466,10 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
         }
     }
     
+    // Name: pickerView -- titleForRow
+    // Inputs: ...
+    // Outputs: ...
+    // Function: Sets the title of rows in pickerViews
     func pickerView(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         var title: String? = nil
         if(pickerView == self.categoryPicker) {
@@ -410,7 +479,7 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
         }
     }
     
-    // Name: pickerView
+    // Name: pickerView -- viewForRow
     // Inputs: None
     // Outputs: None
     // Function: Populates the keyboard pickerViews with required fields.
@@ -451,6 +520,10 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
         }
     }
     
+    // Name: textField -- shouldChangeCharactersInRange
+    // Inputs: ...
+    // Outputs: ...
+    // Function: Stops accepting user input for textField under circumstances
     func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
         let newString = (textField.text! as NSString).stringByReplacingCharactersInRange(range, withString: string) as? NSString
         var arrayOfString: [AnyObject] = newString!.componentsSeparatedByString(".")
@@ -477,39 +550,96 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
         return true
     }
     
-//      Un-comment to enable placeholder text for textView
-//      Name: textViewDidBeginEditing
-//      Inputs: None
-//      Outputs: None
-//      Function: If user edits textView, check textColor to make sure it is returned to blackColor
-     func textViewDidBeginEditing(textView: UITextView) {
+    // Name: textViewDidBeginEditing
+    // Inputs: ...
+    // Outputs: ...
+    // Function: If user edits textview, check textColor to make sure the color is returned to black
+    func textViewDidBeginEditing(textView: UITextView) {
         if textView.textColor == UIColor.lightGrayColor() {
             textView.text = nil
             textView.textColor = UIColor.blackColor()
         }
-     }
-     
-//      Name: textViewDidChange
-//      Inputs: None
-//      Outputs: None
-//      Function: If textView is changed, check if empty. If it is empty, update it with placeholder text
-     func textViewDidChange(textView: UITextView) {
+    }
+    
+    // Name: textViewDidChange
+    // Inputs: ...
+    // Outputs: ...
+    // Function: If textView is changed and cleared, update it with placeholder text
+    func textViewDidChange(textView: UITextView) {
         if (textView.text.isEmpty) {
             textView.textColor = UIColor.lightGrayColor()
             textView.text = PLACEHOLDER_TEXT
         }
-     }
-     
-//      Name: textViewDidChange
-//      Inputs: None
-//      Outputs: None
-//      Function: If user finished editing the textView, check if empty. If it is empty, update it with placeholder text
-     func textViewDidEndEditing(textView: UITextView) {
+    }
+    
+    // Name: textViewDidEndEditing
+    // Inputs: ...
+    // Outputs: ...
+    // Function: If user finished editing the textView, check if empty. If yes, update it with placeholder text.
+    func textViewDidEndEditing(textView: UITextView) {
         if (textView.text.isEmpty) {
             textView.textColor = UIColor.lightGrayColor()
             textView.text = PLACEHOLDER_TEXT
         }
-     }
+    }
+    
+    func textFieldShouldBeginEditing(textField: UITextField) -> Bool {
+        if(textField == HYVESearchTF) {
+            self.HYVEView.hidden = true
+            self.searchViewOriginY.constant += 154
+            //self.searchTable.hidden = false
+            self.searchViewMainSearchTF.becomeFirstResponder()
+            return false
+        } else if (textField == searchViewLocationSearchTF) {
+            print("TOUCH ME")
+            self.searchTable.hidden = false
+    
+        }
+        return true
+    }
+    
+    
+    func searchBarSearchButtonClicked(searchBar: UISearchBar) {
+        print("hello1")
+        self.navigationController!.navigationBar.hidden = true
+        self.searchViewOriginY.constant += 154
+        self.searchTable.hidden = false
+    }
+    
+    func willPresentSearchController(searchController: UISearchController) {
+        print("touched search")
+        self.navigationController!.navigationBar.hidden = true
+        self.searchViewOriginY.constant += 154
+        self.searchTable.hidden = false
+    }
+
+    //
+    // Name: textChangeNotification
+    // Inputs: ...
+    // Outputs: ...
+    // Function: If textField is
+//    func textChangeNotification(notification: NSNotification) {
+//        self.searchRecordsAsPerText(searchTextField.text!)
+//    }
+//    
+//    func textFieldShouldReturn(textField: UITextField) -> Bool {
+//        textField.resignFirstResponder()
+//        return true
+//    }
+//    
+//    func searchRecordsAsPerText(string: String) {
+//        searchArray.removeAllObjects()
+//        for obj: [NSObject : AnyObject] in recordsArray {
+//            var sTemp: String = obj["TEXT"]
+//            var titleResultsRange: NSRange = sTemp.rangeOfString(string, options: NSCaseInsensitiveSearch)
+//            if titleResultsRange.length > 0 {
+//                searchArray.append(obj)
+//            }
+//        }
+//        searchTable.reloadData()
+//    }
+    
+    
     
     /*
      * Overrided functions
@@ -586,13 +716,13 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
         resultSearchController?.delegate = self
         
         // Setup search bar and locationSearchTable and link them
-        searchBar = resultSearchController!.searchBar
-        searchBar!.sizeToFit()
-        self.searchBar!.delegate = self
-        searchBar!.tintColor = UIColor(white: 0.3, alpha: 1.0)
-        self.searchBar!.placeholder = "Enter job location"
-        self.searchBar!.text = previousAddress
-        navigationItem.titleView = resultSearchController?.searchBar
+//        searchBar = resultSearchController!.searchBar
+//        searchBar!.sizeToFit()
+        //self.searchBar!.delegate = self
+        //searchBar!.tintColor = UIColor(white: 0.3, alpha: 1.0)
+        //self.searchBar!.placeholder = "What requests are you searching for?"
+        //self.searchBar!.text = previousAddress
+        //navigationItem.titleView = resultSearchController?.searchBar
         resultSearchController?.hidesNavigationBarDuringPresentation = false
         resultSearchController?.dimsBackgroundDuringPresentation = true
         definesPresentationContext = true
@@ -682,11 +812,35 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
         self.descriptionTV.text = PLACEHOLDER_TEXT
         self.descriptionTV.textColor = UIColor.lightGrayColor()
         
+        // UITextField as SearchBar
+        //
+        self.searchViewOriginY.constant -= 154
+        self.searchTable.hidden = true
+//        NSNotificationCenter.defaultCenter().addObserver(self, selector: "textChangeNotification:", name: UITextFieldTextDidChangeNotification, object: nil)
+        self.HYVESearchTF.delegate = self
+        
+        // Customize THLabels (HYVELabel)
+        self.HYVELabel.shadowColor = kShadowColor2
+        self.HYVELabel.shadowOffset = kShadowOffset
+        self.HYVELabel.shadowBlur = kShadowBlur
+        self.HYVELabel.innerShadowColor = kShadowColor2
+        self.HYVELabel.innerShadowOffset = kInnerShadowOffset
+        self.HYVELabel.innerShadowBlur = kInnerShadowBlur
+        self.HYVELabel.strokeColor = kStrokeColor
+        self.HYVELabel.strokeSize = kStrokeSize
+        self.HYVELabel.gradientStartColor = kGradientStartColor
+        self.HYVELabel.gradientEndColor = kGradientEndColor
+
     }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    override func viewDidDisappear(animated: Bool) {
+        super.viewDidDisappear(animated)
+//        NSNotificationCenter.defaultCenter().removeObserver(self, name: UITextFieldTextDidChangeNotification, object: nil)
     }
 }
 
