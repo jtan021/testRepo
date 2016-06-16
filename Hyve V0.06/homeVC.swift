@@ -11,10 +11,6 @@ import Parse
 import MapKit
 import CoreLocation
 
-protocol HandleMapSearch {
-    func newLocationZoomIn(placemark:MKPlacemark)
-}
-
 struct jobMenuItem {
     var menuTitle: String = ""
     var menuImage: UIImage?
@@ -30,7 +26,6 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
     let locationManager = CLLocationManager()
     var previousAddress: String?
     var resultSearchController:UISearchController? = nil
-    //var searchBar: UISearchBar?
     var selectedPin:MKPlacemark? = nil
     var didStartPanMap:Bool = false
     // Job Menu
@@ -59,8 +54,11 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
     var kStrokeSize:CGFloat = (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.Pad ? 4.0 : 2.0)
     var kGradientStartColor = UIColor(colorLiteralRed: 229/255, green: 185/255, blue: 36/255, alpha: 1.0)
     var kGradientEndColor = UIColor(colorLiteralRed: 255/255, green: 138/255, blue: 0/255, alpha: 1.0)
-    
-    
+    // Search stuff
+    var matchingItems:[MKMapItem] = []
+    var searchMapView: MKMapView? = nil
+    var tappedSearchTable:Bool = false
+
     /*
      * Outlets
      */
@@ -76,6 +74,8 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
     @IBOutlet weak var switchMapListButton: UIButton!
     @IBOutlet weak var resetMapButton: UIButton!
     // Request view and textfields
+    @IBOutlet weak var requestNavBarView: UIView!
+    @IBOutlet weak var requestNavBarLabel: UILabel!
     @IBOutlet weak var requestView: UIView!
     @IBOutlet weak var addressTF: UITextField!
     @IBOutlet weak var addressTV: UITextView!
@@ -102,6 +102,7 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
      * Action functions
      */
     @IBAction func postJobDidTouch(sender: AnyObject) {
+        self.requestNavBarView.hidden = false
         self.jobMenuView.hidden = false
         print(jobMenuArray.count)
         
@@ -147,37 +148,17 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
     
     @IBAction func searchButtonDidTouch(sender: AnyObject) {
     }
+    
+    @IBAction func returnFromRequestViewsDidTouch(sender: AnyObject) {
+        self.requestNavBarView.hidden = true
+        self.requestView.hidden = true
+        self.jobMenuView.hidden = true
+    }
+    
 
     /*
      * Custom functions
      */
-    
-    // Name: closeJobMenu()
-    // Inputs: ...
-    // Outputs: ...
-    // Function: Hide jobMenuView and replace navigationItem.titleView with the searchBar
-    func closeJobMenu() -> Void {
-        // Remove right bar "return" button
-        self.navigationItem.rightBarButtonItem = nil
-        // Replace title with Search Bar
-        navigationItem.titleView = resultSearchController?.searchBar
-        // Hide jobMenuView
-        self.jobMenuView.hidden = true
-    }
-    
-    // Name: closeRequestView
-    // Inputs: ...
-    // Outputs: ...
-    // Function: Hide requestView and replace navigationItem.titleView with the searchBar
-    func closeRequestView() -> Void {
-        // Remove right bar "return" button
-        self.navigationItem.rightBarButtonItem = nil
-        // Replace title with Search Bar
-        navigationItem.titleView = resultSearchController?.searchBar
-        // Hide jobMenuView
-        self.requestView.hidden = true
-    }
-    
     // Name: colorWithHexString
     // Inputs: String
     // Outputs: UIColor
@@ -252,17 +233,8 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
             print(address)
             self.previousAddress = address
             //self.activeUser.currentLocation = address
-            //self.searchBar!.text = address
+            self.searchViewLocationSearchTF.text = address
         })
-    }
-    
-    // Name: didDismissSearchController
-    // Inputs: None
-    // Outputs: None
-    // Function: If searchController was dismissed, reset address to previously set address
-    func didDismissSearchController(searchController: UISearchController) {
-        print("Search bar was dismissed.")
-        //self.searchBar!.text = previousAddress
     }
     
     // Name: gestureRecognizer
@@ -278,14 +250,12 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
     // Outputs: None
     // Function: If gestureRecognizer returns true, user is panning the map so hide the postJobButton. If false or panning ends, unhide the postJobButton
     func didDragMap(gestureRecognizer: UIGestureRecognizer) {
-        //postJobButton.hidden = true
         if(!self.didStartPanMap) {
             self.postJobButton.hidden = true
             self.mapMarkerImageView.center.y -= 10
             self.didStartPanMap = true
         }
         if gestureRecognizer.state == .Ended {
-            //postJobButton.hidden = false
             self.postJobButton.hidden = false
             self.mapMarkerImageView.center.y += 10
             self.didStartPanMap = false
@@ -298,6 +268,10 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
     // Outputs: ...
     // Function: Sets the number of rows in each section of the tableView
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if(tableView == searchTable) {
+            return self.matchingItems.count
+        }
+        
         return self.jobMenuArray.count
     }
     
@@ -306,6 +280,16 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
     // Outputs: ...
     // Function: Sets up each cell of the tableView
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        // If tableView == searchTable -> setup searchTable with locations
+        if(tableView == searchTable) {
+            let cell = tableView.dequeueReusableCellWithIdentifier("locationCell")!
+            let selectedItem = matchingItems[indexPath.row].placemark
+            cell.textLabel?.text = selectedItem.name
+            cell.detailTextLabel?.text = parseAddress(selectedItem)
+            return cell
+        }
+        
+        // Else setup selection for job request categories
         let menuCell = self.jobMenuTableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath) as! jobMenuCell
         menuCell.menuTitle.text = self.jobMenuArray[indexPath.row].menuTitle
         menuCell.menuImage.image = self.jobMenuArray[indexPath.row].menuImage
@@ -323,39 +307,44 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
     // Outputs: ...
     // Function: Sets up what happens when a cell is selected
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        print("selected")
-        tableView.deselectRowAtIndexPath(indexPath, animated: true)
-        self.requestView.hidden = false
-        
-        // Add return button as Right Bar Button
-        let buttonImage = UIImage(named: "return")
-        let button:UIButton = UIButton(frame: CGRect(x: 0,y: 0,width: 24, height: 24))
-        button.setBackgroundImage(buttonImage, forState: .Normal)
-        button.addTarget(self, action: Selector("closeRequestView"), forControlEvents: UIControlEvents.TouchUpInside)
-        self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: button)
-        
-        // Set navigation bar title
-        navigationItem.titleView = nil
-        navigationItem.title = "Request a Job"
-        
-        // Hide jobMenuView
-        self.jobMenuView.hidden = true
-        
-        // Set jobMenuView defaults
-        self.categoryTF.text = self.jobMenuArray[indexPath.row].menuTitle
-        self.offerTF.text = "$0.00"
-        self.lifetimeTF.text = "0 Days, 0 Hours, 0 Minutes"
-        //self.addressTV.text = self.searchBar!.text
+        // If tableView == searchTable -> setup selection for map
+        if(tableView == searchTable) {
+            let selectedItem = matchingItems[indexPath.row].placemark
+            self.newLocationZoomIn(selectedItem)
+            self.searchTable.hidden = true
+        // Else setup selection for job request categories
+        } else {
+            print("selected")
+            tableView.deselectRowAtIndexPath(indexPath, animated: true)
+            self.requestView.hidden = false
+            
+            // Set and show navigation bar title
+            self.requestNavBarLabel.text = "Request a Job"
+            self.requestNavBarView.hidden = false
+            
+            // Hide jobMenuView
+            self.jobMenuView.hidden = true
+            
+            // Set jobMenuView defaults
+            self.categoryTF.text = self.jobMenuArray[indexPath.row].menuTitle
+            self.offerTF.text = "$0.00"
+            self.lifetimeTF.text = "0 Days, 0 Hours, 0 Minutes"
+            self.addressTV.text = self.searchViewLocationSearchTF.text
+        }
     }
     
-    //Name: dismissKeyboard
-    //Inputs: None
-    //Outputs: None
-    //Function: Custom function to end text editing for views by dismissing keyboard
+    // Name: dismissKeyboard
+    // Inputs: None
+    // Outputs: None
+    // Function: Custom function to end text editing for views by dismissing keyboard
     func dismissKeyboard(sender: AnyObject) {
         view.endEditing(true)
     }
     
+    // Name: animateTextField
+    // Inputs: ...
+    // Outputs: ...
+    // Function: Custom function for pushing textFields up when editting
     func animateTextField(textField: UITextField, up: Bool) {
         let movementDistance:CGFloat = -150
         let movementDuration: Double = 0.3
@@ -511,11 +500,81 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
     // Outputs: None
     // Function: Adds a '$' to the front of the jobOfferTextField if user inputs text
     func textFieldDidChange(textField: UITextField) {
-        if !(self.offerTF.text!.hasPrefix("$")) {
-            self.offerTF.text = "$\(self.offerTF.text!)"
+        if(textField == self.offerTF) {
+            if !(self.offerTF.text!.hasPrefix("$")) {
+                self.offerTF.text = "$\(self.offerTF.text!)"
+            } else {
+                if (self.offerTF.text!.hasSuffix("$")) {
+                    self.offerTF.text = ""
+                }
+            }
+        }
+    }
+    
+    // Name: searchTextFieldDidChange
+    // Inputs: ...
+    // Outputs: ...
+    // Function: Function to search map for when searchViewLocationSearchTF is edited
+    func searchTextFieldDidChange(textField: searchTextField) {
+        if(textField == searchViewMainSearchTF) {
+            // Do search for searchViewMainSearchTF
         } else {
-            if (self.offerTF.text!.hasSuffix("$")) {
-                self.offerTF.text = ""
+            self.searchTable.hidden = false
+            guard let mapView = self.mapView,
+                let searchBarText = textField.text else { return }
+            let request = MKLocalSearchRequest()
+            request.naturalLanguageQuery = searchBarText
+            request.region = mapView.region
+            let search = MKLocalSearch(request: request)
+            search.startWithCompletionHandler { response, _ in
+                guard let response = response else {
+                    return
+                }
+                self.matchingItems = response.mapItems
+                print("item = \(self.matchingItems)")
+                self.searchTable.reloadData()
+            }
+        }
+    }
+    
+    // Name: searchTextFieldDidBeginEditing
+    // Inputs: ...
+    // Outputs: ...
+    // Function: Function to search map for when searchViewLocationSearchTF starts being edited
+    func searchTextFieldDidBeginEditing(textField: searchTextField) {
+        if(textField == searchViewMainSearchTF) {
+            self.searchTable.hidden = true
+        } else if (textField == searchViewLocationSearchTF) {
+            textField.text = ""
+            self.searchTable.hidden = false
+            guard let mapView = self.mapView,
+                let searchBarText = textField.text else { return }
+            let request = MKLocalSearchRequest()
+            request.naturalLanguageQuery = searchBarText
+            request.region = mapView.region
+            let search = MKLocalSearch(request: request)
+            search.startWithCompletionHandler { response, _ in
+                guard let response = response else {
+                    return
+                }
+                self.matchingItems = response.mapItems
+                print("item = \(self.matchingItems)")
+                self.searchTable.reloadData()
+            }
+        }
+    }
+    
+    // Name: searchTextFieldDidEndEditing
+    // Inputs: ...
+    // Outputs: ...
+    // Function: Function to reset searchViewLocationSearchTF text if user is finished editing
+    func searchTextFieldDidEndEditing(textField: searchTextField) {
+        if(textField == searchViewMainSearchTF) {
+            
+        } else if (textField == searchViewLocationSearchTF) {
+            if(textField.text == "") {
+                print("ended")
+                textField.text = self.previousAddress!
             }
         }
     }
@@ -593,26 +652,41 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
         } else if (textField == searchViewLocationSearchTF) {
             print("TOUCH ME")
             self.searchTable.hidden = false
-    
         }
         return true
     }
     
-    
-    func searchBarSearchButtonClicked(searchBar: UISearchBar) {
-        print("hello1")
-        self.navigationController!.navigationBar.hidden = true
-        self.searchViewOriginY.constant += 154
-        self.searchTable.hidden = false
-    }
-    
-    func willPresentSearchController(searchController: UISearchController) {
-        print("touched search")
-        self.navigationController!.navigationBar.hidden = true
-        self.searchViewOriginY.constant += 154
-        self.searchTable.hidden = false
+    func parseAddress(selectedItem:MKPlacemark) -> String {
+        // put a space between "4" and "Melrose Place"
+        let firstSpace = (selectedItem.subThoroughfare != nil && selectedItem.thoroughfare != nil) ? " " : ""
+        // put a comma between street and city/state
+        let comma = (selectedItem.subThoroughfare != nil || selectedItem.thoroughfare != nil) && (selectedItem.subAdministrativeArea != nil || selectedItem.administrativeArea != nil) ? ", " : ""
+        // put a space between "Washington" and "DC"
+        let secondSpace = (selectedItem.subAdministrativeArea != nil && selectedItem.administrativeArea != nil) ? " " : ""
+        let addressLine = String(
+            format:"%@%@%@%@%@%@%@",
+            // street number
+            selectedItem.subThoroughfare ?? "",
+            firstSpace,
+            // street name
+            selectedItem.thoroughfare ?? "",
+            comma,
+            // city
+            selectedItem.locality ?? "",
+            secondSpace,
+            // state
+            selectedItem.administrativeArea ?? ""
+        )
+        return addressLine
     }
 
+    func newLocationZoomIn(placemark:MKPlacemark){
+        selectedPin = placemark
+        self.mapView!.centerCoordinate = placemark.coordinate
+        let reg = MKCoordinateRegionMakeWithDistance(placemark.coordinate, 1500, 1500)
+        self.mapView!.setRegion(reg, animated: true)
+    }
+    
     //
     // Name: textChangeNotification
     // Inputs: ...
@@ -709,28 +783,6 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
         geoCoder = CLGeocoder()
         self.mapView!.delegate = self
         
-        // Setup location search results table
-        let LocationSearchTable = storyboard!.instantiateViewControllerWithIdentifier("locationSearchTable") as! locationSearchTable
-        resultSearchController = UISearchController(searchResultsController: LocationSearchTable)
-        resultSearchController?.searchResultsUpdater = LocationSearchTable
-        resultSearchController?.delegate = self
-        
-        // Setup search bar and locationSearchTable and link them
-//        searchBar = resultSearchController!.searchBar
-//        searchBar!.sizeToFit()
-        //self.searchBar!.delegate = self
-        //searchBar!.tintColor = UIColor(white: 0.3, alpha: 1.0)
-        //self.searchBar!.placeholder = "What requests are you searching for?"
-        //self.searchBar!.text = previousAddress
-        //navigationItem.titleView = resultSearchController?.searchBar
-        resultSearchController?.hidesNavigationBarDuringPresentation = false
-        resultSearchController?.dimsBackgroundDuringPresentation = true
-        definesPresentationContext = true
-        
-        // Search for locations using MKLocalSearchRequest
-        LocationSearchTable.mapView = mapView
-        LocationSearchTable.handleMapSearchDelegate = self
-        
         // Detect if user panned through mapView
         let panRecognizer: UIPanGestureRecognizer = UIPanGestureRecognizer(target: self, action: "didDragMap:")
         panRecognizer.delegate = self
@@ -800,6 +852,7 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
         // Set offerTF keyboard to numberpad and edit string if offerTF is edited
         self.offerTF.keyboardType = UIKeyboardType.DecimalPad
         self.offerTF.addTarget(self, action: "textFieldDidChange:", forControlEvents: UIControlEvents.EditingChanged)
+        
         // Add done button to all text keyboards
         self.titleTF.inputAccessoryView = toolBar
         self.categoryTF.inputAccessoryView = toolBar
@@ -813,12 +866,15 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
         self.descriptionTV.textColor = UIColor.lightGrayColor()
         
         // UITextField as SearchBar
-        //
         self.searchViewOriginY.constant -= 154
         self.searchTable.hidden = true
-//        NSNotificationCenter.defaultCenter().addObserver(self, selector: "textChangeNotification:", name: UITextFieldTextDidChangeNotification, object: nil)
         self.HYVESearchTF.delegate = self
-        
+        self.searchTable.delegate = self
+        self.searchTable.dataSource = self
+        self.searchViewLocationSearchTF.addTarget(self, action: #selector(homeVC.searchTextFieldDidChange(_:)), forControlEvents: .EditingChanged)
+        self.searchViewLocationSearchTF.addTarget(self, action: #selector(homeVC.searchTextFieldDidBeginEditing(_:)), forControlEvents: .EditingDidBegin)
+        self.searchViewLocationSearchTF.addTarget(self, action: #selector(homeVC.searchTextFieldDidEndEditing(_:)), forControlEvents: .EditingDidEnd)
+        self.searchViewMainSearchTF.addTarget(self, action: #selector(homeVC.searchTextFieldDidBeginEditing(_:)), forControlEvents: .EditingDidBegin)
         // Customize THLabels (HYVELabel)
         self.HYVELabel.shadowColor = kShadowColor2
         self.HYVELabel.shadowOffset = kShadowOffset
@@ -830,6 +886,10 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
         self.HYVELabel.strokeSize = kStrokeSize
         self.HYVELabel.gradientStartColor = kGradientStartColor
         self.HYVELabel.gradientEndColor = kGradientEndColor
+        
+        // RequestView Navigation bar
+        // Hide requestNavBarView to start
+        self.requestNavBarView.hidden = true
 
     }
     
@@ -840,16 +900,6 @@ class homeVC: UIViewController, MKMapViewDelegate , CLLocationManagerDelegate, U
     
     override func viewDidDisappear(animated: Bool) {
         super.viewDidDisappear(animated)
-//        NSNotificationCenter.defaultCenter().removeObserver(self, name: UITextFieldTextDidChangeNotification, object: nil)
-    }
-}
-
-extension homeVC: HandleMapSearch {
-    func newLocationZoomIn(placemark:MKPlacemark){
-        selectedPin = placemark
-        self.mapView!.centerCoordinate = placemark.coordinate
-        let reg = MKCoordinateRegionMakeWithDistance(placemark.coordinate, 1500, 1500)
-        self.mapView!.setRegion(reg, animated: true)
     }
 }
 
